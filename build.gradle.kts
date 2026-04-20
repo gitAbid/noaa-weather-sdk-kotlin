@@ -1,10 +1,11 @@
 plugins {
     kotlin("jvm") version "1.9.23"
+    `maven-publish`
     application
 }
 
 group = "dev.abid.noaa.weather"
-version = "1.0.0-SNAPSHOT"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -35,4 +36,50 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+java {
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+
+            pom {
+                name.set("NOAA Weather SDK for Kotlin")
+                description.set("A developer-friendly Kotlin SDK for the National Weather Service API")
+                url.set("https://github.com/gitAbid/noaa-weather-sdk-kotlin")
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("https://opensource.org/licenses/MIT")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("gitAbid")
+                        name.set("Abid Hasan")
+                        url.set("https://abidhasan.tech")
+                    }
+                }
+                scm {
+                    url.set("https://github.com/gitAbid/noaa-weather-sdk-kotlin")
+                    connection.set("scm:git:git://github.com/gitAbid/noaa-weather-sdk-kotlin.git")
+                    developerConnection.set("scm:git:ssh://github.com/gitAbid/noaa-weather-sdk-kotlin.git")
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/gitAbid/noaa-weather-sdk-kotlin")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
 }
