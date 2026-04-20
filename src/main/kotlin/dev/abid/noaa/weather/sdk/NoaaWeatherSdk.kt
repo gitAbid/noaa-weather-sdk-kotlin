@@ -2,6 +2,7 @@ package dev.abid.noaa.weather.sdk
 
 import dev.abid.noaa.weather.sdk.api.*
 import dev.abid.noaa.weather.sdk.service.*
+import mu.KotlinLogging
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -9,6 +10,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+
+private val logger = KotlinLogging.logger {}
 
 class NoaaWeatherSdk private constructor(config: NoaaWeatherConfig) {
 
@@ -18,12 +21,15 @@ class NoaaWeatherSdk private constructor(config: NoaaWeatherConfig) {
     val glossary: GlossaryService
 
     init {
+        logger.info { "Initializing NOAA Weather SDK (baseUrl=${config.baseUrl}, userAgent=${config.userAgent})" }
+
         val okHttpBuilder = OkHttpClient.Builder()
             .addInterceptor(NoaaWeatherInterceptor(config.userAgent))
             .connectTimeout(config.connectTimeout.inWholeMilliseconds, TimeUnit.MILLISECONDS)
             .readTimeout(config.readTimeout.inWholeMilliseconds, TimeUnit.MILLISECONDS)
 
         if (config.enableLogging) {
+            logger.debug { "HTTP request/response logging enabled" }
             okHttpBuilder.addInterceptor(
                 HttpLoggingInterceptor().apply {
                     level = HttpLoggingInterceptor.Level.BODY
@@ -43,6 +49,8 @@ class NoaaWeatherSdk private constructor(config: NoaaWeatherConfig) {
         alerts = DefaultAlertService(retrofit.create(AlertApi::class.java))
         observations = DefaultObservationService(retrofit.create(ObservationApi::class.java))
         glossary = DefaultGlossaryService(retrofit.create(GlossaryApi::class.java))
+
+        logger.info { "NOAA Weather SDK initialized successfully" }
     }
 
     companion object {

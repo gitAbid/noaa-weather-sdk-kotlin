@@ -20,6 +20,10 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+    implementation("org.slf4j:slf4j-api:2.0.13")
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
+
+    testRuntimeOnly("org.slf4j:slf4j-simple:2.0.13")
 
     testImplementation(kotlin("test"))
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:1.9.23")
