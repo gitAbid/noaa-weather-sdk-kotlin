@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOAA Weather SDK for Kotlin</title>
+<meta name="description" content="A developer-friendly Kotlin SDK for the National Weather Service API. Forecasts, alerts, observations, and glossary with coroutine-first design.">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="NOAA Weather SDK for Kotlin">
+<meta property="og:description" content="A developer-friendly Kotlin SDK for the National Weather Service API. Forecasts, alerts, observations, and glossary with coroutine-first design.">
+<meta property="og:url" content="https://github.com/gitAbid/noaa-weather-sdk-kotlin">
+<meta property="og:image" content="og-banner.png">
+<meta property="og:site_name" content="NOAA Weather SDK for Kotlin">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="NOAA Weather SDK for Kotlin">
+<meta name="twitter:description" content="A developer-friendly Kotlin SDK for the National Weather Service API. Forecasts, alerts, observations, and glossary with coroutine-first design.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  /* ============ LIGHT THEME ============ */
+  :root {
+    --primary: #1D4ED8;
+    --primary-hover: #1E40AF;
+    --primary-subtle: rgba(29, 78, 216, 0.08);
+    --primary-border: rgba(29, 78, 216, 0.2);
+    --cta: #C2410C;
+    --cta-hover: #9A3412;
+    --bg: #FFFFFF;
+    --bg-alt: #F8FAFC;
+    --bg-card: #FFFFFF;
+    --bg-code: #1E293B;
+    --bg-code-header: #141C2E;
+    --text: #0F172A;
+    --text-secondary: #475569;
+    --text-tertiary: #64748B;
+    --border: #E2E8F0;
+    --border-strong: #CBD5E1;
+    --success: #15803D;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.07);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.08);
+    --nav-bg: rgba(255, 255, 255, 0.88);
+    --glow: radial-gradient(ellipse, rgba(29, 78, 216, 0.07) 0%, transparent 70%);
+    --code-inline-bg: #EFF6FF;
+    --code-inline-color: #1D4ED8;
+    --table-header-bg: #0F172A;
+    --table-stripe: #F8FAFC;
+    --font-body: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+  }
+
+  /* ============ DARK THEME ============ */
+  [data-theme="dark"] {
+    --primary: #60A5FA;
+    --primary-hover: #93C5FD;
+    --primary-subtle: rgba(96, 165, 250, 0.1);
+    --primary-border: rgba(96, 165, 250, 0.25);
+    --cta: #FB923C;
+    --cta-hover: #FDBA74;
+    --bg: #0B1120;
+    --bg-alt: #111827;
+    --bg-card: #1A2332;
+    --bg-code: #0D1526;
+    --bg-code-header: #0A0F1A;
+    --text: #F1F5F9;
+    --text-secondary: #94A3B8;
+    --text-tertiary: #64748B;
+    --border: #1E293B;
+    --border-strong: #334155;
+    --success: #4ADE80;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
+    --nav-bg: rgba(11, 17, 32, 0.92);
+    --glow: radial-gradient(ellipse, rgba(96, 165, 250, 0.06) 0%, transparent 70%);
+    --code-inline-bg: rgba(96, 165, 250, 0.12);
+    --code-inline-color: #93C5FD;
+    --table-header-bg: #0A0F1A;
+    --table-stripe: rgba(255,255,255,0.02);
+  }
+
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font-body); background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; transition: background 200ms, color 200ms; }
+  a { color: var(--primary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  /* Nav */
+  nav { position: sticky; top: 0; z-index: 100; background: var(--nav-bg); backdrop-filter: blur(16px); transition: background 200ms; }
+  nav .container { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1rem; color: var(--text); }
+  .nav-brand:hover { text-decoration: none; }
+  .nav-brand svg { width: 26px; height: 26px; color: var(--primary); }
+  .nav-links { display: flex; gap: 28px; align-items: center; }
+  .nav-links a { color: var(--text-secondary); font-size: 0.88rem; font-weight: 500; transition: color 150ms; }
+  .nav-links a:hover { color: var(--primary); text-decoration: none; }
+  .nav-right { display: flex; align-items: center; gap: 16px; }
+  .theme-toggle { width: 36px; height: 36px; border-radius: 8px; border: none; background: var(--primary-subtle); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 150ms; color: var(--text-secondary); }
+  .theme-toggle:hover { background: var(--primary-border); color: var(--primary); }
+  .theme-toggle svg { width: 18px; height: 18px; }
+  [data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+  [data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+  [data-theme="light"] .theme-toggle .icon-sun { display: none; }
+  [data-theme="light"] .theme-toggle .icon-moon { display: block; }
+  .nav-cta { background: var(--primary); color: #fff !important; padding: 8px 18px; border-radius: 8px; font-size: 0.84rem; font-weight: 600; transition: background 150ms; }
+  .nav-cta:hover { background: var(--primary-hover); text-decoration: none; }
+
+  /* Hero */
+  .hero { padding: 100px 0 80px; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; top: -200px; left: 50%; transform: translateX(-50%); width: 900px; height: 600px; background: var(--glow); pointer-events: none; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--primary-subtle); color: var(--primary); padding: 6px 16px; border-radius: 100px; font-size: 0.82rem; font-weight: 600; margin-bottom: 24px; }
+  .hero-badge svg { width: 16px; height: 16px; }
+  .hero h1 { font-size: clamp(2.1rem, 5vw, 3.4rem); font-weight: 700; line-height: 1.15; margin-bottom: 20px; letter-spacing: -0.025em; color: var(--text); }
+  .hero h1 span { color: var(--primary); }
+  .hero p { font-size: 1.12rem; color: var(--text-secondary); max-width: 580px; margin: 0 auto 40px; font-weight: 400; line-height: 1.7; }
+  .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 26px; border-radius: 10px; font-weight: 600; font-size: 0.93rem; border: none; cursor: pointer; transition: all 150ms; font-family: var(--font-body); }
+  .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 14px rgba(29, 78, 216, 0.25); }
+  .btn-primary:hover { background: var(--primary-hover); box-shadow: 0 6px 20px rgba(29, 78, 216, 0.35); text-decoration: none; transform: translateY(-1px); }
+  [data-theme="dark"] .btn-primary { box-shadow: 0 4px 14px rgba(96, 165, 250, 0.2); color: #0F172A; }
+  .btn-secondary { background: var(--bg-card); color: var(--text); }
+  .btn-secondary:hover { color: var(--primary); text-decoration: none; box-shadow: var(--shadow-md); }
+  .btn svg { width: 18px; height: 18px; }
+  .hero-meta { display: flex; gap: 28px; justify-content: center; margin-top: 48px; font-size: 0.86rem; }
+  .hero-meta span { display: flex; align-items: center; gap: 6px; color: var(--text-tertiary); }
+  .hero-meta svg { width: 16px; height: 16px; color: var(--success); }
+
+  /* Sections shared */
+  section { padding: 88px 0; }
+  .section-label { display: inline-block; font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.4px; color: var(--primary); margin-bottom: 12px; }
+  .section-title { font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 700; margin-bottom: 14px; letter-spacing: -0.01em; color: var(--text); }
+  .section-desc { color: var(--text-secondary); max-width: 560px; font-size: 1.02rem; margin-bottom: 48px; line-height: 1.7; }
+  .section-alt { background: var(--bg-alt); }
+  .section-dark { background: #0F172A; }
+  .section-dark, .section-dark .section-title { color: #E2E8F0; }
+  .section-dark .section-desc { color: #94A3B8; }
+  .section-dark .section-label { color: var(--primary); }
+
+  /* Features */
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .feature-card { background: var(--bg-card); border-radius: 14px; padding: 28px; transition: all 200ms; box-shadow: var(--shadow-sm); }
+  .feature-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+  .feature-icon { width: 44px; height: 44px; background: var(--primary-subtle); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
+  .feature-icon svg { width: 22px; height: 22px; color: var(--primary); }
+  .feature-card h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+  .feature-card p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.65; }
+
+  /* Code blocks */
+  .code-block { background: var(--bg-code); border-radius: 12px; overflow: hidden; margin-bottom: 24px; box-shadow: var(--shadow-md); }
+  .code-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; background: var(--bg-code-header); }
+  .code-header span { font-family: var(--font-mono); font-size: 0.78rem; color: #94A3B8; }
+  .code-header button { background: rgba(148, 163, 184, 0.12); border: none; color: #94A3B8; padding: 4px 12px; border-radius: 6px; font-size: 0.74rem; cursor: pointer; font-family: var(--font-mono); transition: all 150ms; }
+  .code-header button:hover { background: rgba(148, 163, 184, 0.22); color: var(--primary); }
+  .code-body { padding: 18px; overflow-x: auto; }
+  .code-body pre { font-family: var(--font-mono); font-size: 0.84rem; line-height: 1.75; color: #E2E8F0; white-space: pre; tab-size: 4; }
+  .kw { color: #C084FC; } .fn { color: #60A5FA; } .str { color: #34D399; } .cmt { color: #64748B; font-style: italic; } .num { color: #FB923C; } .type { color: #38BDF8; }
+
+  /* Usage grid */
+  .usage-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .usage-card { background: var(--bg-card); border-radius: 14px; overflow: hidden; transition: box-shadow 200ms; box-shadow: var(--shadow-sm); }
+  .usage-card:hover { box-shadow: var(--shadow-lg); }
+  .usage-card-header { padding: 16px 22px; background: var(--bg-alt); display: flex; align-items: center; gap: 10px; }
+  .usage-card-header .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .usage-card-header .dot-orange { background: var(--cta); }
+  .usage-card-header .dot-green { background: var(--success); }
+  .usage-card-header .dot-blue { background: var(--primary); }
+  .usage-card-header .dot-purple { background: #8B5CF6; }
+  .usage-card-header span { font-weight: 600; font-size: 0.92rem; color: var(--text); }
+  .usage-card pre { padding: 18px 22px; font-family: var(--font-mono); font-size: 0.81rem; line-height: 1.7; color: #E2E8F0; overflow-x: auto; background: #0F172A; }
+
+  /* Error table */
+  .api-table { width: 100%; border-collapse: collapse; background: var(--bg-card); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-sm); }
+  .api-table th { background: #0F172A; color: #E2E8F0; text-align: left; padding: 13px 20px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+  .api-table td { padding: 13px 20px; font-size: 0.88rem; color: var(--text-secondary); }
+  .api-table tr:last-child td { }
+  .api-table tr:nth-child(even) td { background: var(--table-stripe); }
+  .api-table code, code { font-family: var(--font-mono); font-size: 0.82rem; background: var(--code-inline-bg); padding: 2px 7px; border-radius: 4px; color: var(--code-inline-color); }
+
+  /* Dev guide */
+  .guide-section { margin-bottom: 56px; }
+  .guide-section:last-child { margin-bottom: 0; }
+  .guide-section h3 { font-size: 1.25rem; font-weight: 600; margin-bottom: 12px; color: var(--text); display: flex; align-items: center; gap: 10px; }
+  .guide-section h3 .badge { font-size: 0.7rem; font-weight: 600; padding: 3px 10px; border-radius: 6px; background: var(--primary-subtle); color: var(--primary); }
+  .guide-section p { color: var(--text-secondary); font-size: 0.94rem; line-height: 1.7; margin-bottom: 16px; }
+  .model-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .model-item { background: var(--bg-alt); border-radius: 8px; padding: 14px 18px; box-shadow: var(--shadow-sm); }
+  .model-item code { font-weight: 600; font-size: 0.85rem; }
+  .model-item p { font-size: 0.84rem; margin: 4px 0 0; color: var(--text-tertiary); }
+  .config-grid { display: grid; grid-template-columns: 1fr 2fr 2fr; gap: 0; border-radius: 12px; overflow: hidden; margin: 16px 0; box-shadow: var(--shadow-sm); }
+  .config-grid dt { padding: 12px 18px; font-family: var(--font-mono); font-size: 0.84rem; font-weight: 600; color: var(--text); background: var(--bg-alt); }
+  .config-grid dd.type { padding: 12px 18px; font-size: 0.84rem; color: var(--text-tertiary); background: var(--bg-alt); }
+  .config-grid dd.desc { padding: 12px 18px; font-size: 0.88rem; color: var(--text-secondary); }
+
+  /* CTA */
+  .cta-section { text-align: center; }
+  .cta-card { background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border-radius: 20px; padding: 64px 40px; color: #F1F5F9; position: relative; overflow: hidden; box-shadow: var(--shadow-lg); }
+  .cta-card::before { content: ''; position: absolute; top: -80px; right: -80px; width: 350px; height: 350px; background: radial-gradient(ellipse, rgba(96, 165, 250, 0.12) 0%, transparent 70%); pointer-events: none; }
+  .cta-card h2 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; margin-bottom: 12px; }
+  .cta-card p { color: #94A3B8; font-size: 1.02rem; margin-bottom: 32px; max-width: 480px; margin-left: auto; margin-right: auto; }
+  .btn-cta { background: var(--cta); color: #fff; box-shadow: 0 4px 14px rgba(194, 65, 12, 0.3); }
+  .btn-cta:hover { background: var(--cta-hover); box-shadow: 0 6px 20px rgba(194, 65, 12, 0.4); text-decoration: none; transform: translateY(-1px); }
+
+
+  /* Footer */
+  footer { padding: 32px 0; background: var(--bg-alt); }
+  footer .container { display: flex; justify-content: space-between; align-items: center; }
+  footer p { color: var(--text-tertiary); font-size: 0.82rem; }
+  footer .footer-links { display: flex; gap: 24px; }
+  footer .footer-links a { color: var(--text-tertiary); font-size: 0.82rem; }
+  footer .footer-links a:hover { color: var(--primary); }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .nav-links a:not(.nav-cta) { display: none; }
+    .hero { padding: 64px 0 48px; }
+    .hero-meta { flex-direction: column; gap: 10px; align-items: center; }
+    .usage-grid, .features-grid, .model-list { grid-template-columns: 1fr; }
+    .config-grid { grid-template-columns: 1fr; }
+    .config-grid dd { display: none; }
+    .cta-card { padding: 40px 24px; }
+    footer .container { flex-direction: column; gap: 12px; text-align: center; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <div class="container">
+    <a href="#" class="nav-brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+      NOAA Weather SDK
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#quickstart">Quick Start</a>
+      <a href="#guide">Developer Guide</a>
+      <a href="#errors">Errors</a>
+      <div class="nav-right">
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <a href="https://github.com/gitAbid/noaa-weather-sdk-kotlin" class="nav-cta">GitHub</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Kotlin Coroutines + Retrofit + OkHttp
+    </div>
+    <h1>Weather Data for Your<br>Kotlin Apps, <span>Simplified</span></h1>
+    <p>A developer-friendly SDK for the National Weather Service API. Forecasts, alerts, observations, and glossary with clean Kotlin types and coroutine-first design.</p>
+    <div class="hero-actions">
+      <a href="#quickstart" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        Get Started
+      </a>
+      <a href="#guide" class="btn btn-secondary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Developer Guide
+      </a>
+    </div>
+    <div class="hero-meta">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> No API Key Required</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Kotlin 1.9+ / Java 11+</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Open Source</span>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section-alt" id="features">
+  <div class="container">
+    <span class="section-label">Features</span>
+    <h2 class="section-title">Everything You Need from the NWS API</h2>
+    <p class="section-desc">Four complete service layers covering all major NWS endpoints, with clean models and structured error handling.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v10l5 3"/><circle cx="12" cy="12" r="10"/></svg></div>
+        <h3>Forecasts</h3>
+        <p>Daily and hourly forecasts by coordinates, gridpoint, or zone. Automatic lat/lon to gridpoint resolution.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <h3>Alerts</h3>
+        <p>Active weather alerts filtered by state, zone, or ID. Typed severity, urgency, and certainty enums.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <h3>Observations</h3>
+        <p>Current conditions from weather stations. Temperature, humidity, wind, pressure, visibility, and more.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+        <h3>Coroutine-First</h3>
+        <p>All service methods are suspend functions. Clean, non-blocking async with Retrofit's native support.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h3>Structured Errors</h3>
+        <p>Typed exception hierarchy for API errors, rate limits, network failures, and parse errors.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+        <h3>SLF4J Logging</h3>
+        <p>Built-in structured logging via SLF4J. Debug, info, and error logs across all services. Plug any backend.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Quick Start -->
+<section class="section-dark" id="quickstart">
+  <div class="container">
+    <span class="section-label">Quick Start</span>
+    <h2 class="section-title">Up and Running in 30 Seconds</h2>
+    <p class="section-desc">Add the dependency, create the SDK, start fetching weather data. No API keys, no complex setup.</p>
+    <div class="code-block">
+      <div class="code-header"><span>build.gradle.kts</span><button onclick="copyCode(this)">Copy</button></div>
+      <div class="code-body"><pre><span class="cmt">// Add to your dependencies block</span>
+<span class="fn">implementation</span>(<span class="str">"dev.abid.noaa.weather:noaa-weather-sdk-kotlin:1.0.0"</span>)
+
+<span class="cmt">// SLF4J backend of your choice (e.g., Logback)</span>
+<span class="fn">runtimeOnly</span>(<span class="str">"ch.qos.logback:logback-classic:1.5.6"</span>)</pre></div>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><span>Main.kt</span><button onclick="copyCode(this)">Copy</button></div>
+      <div class="code-body"><pre><span class="kw">import</span> dev.abid.noaa.weather.sdk.NoaaWeatherSdk
+<span class="kw">import</span> kotlinx.coroutines.runBlocking
+
+<span class="kw">fun</span> <span class="fn">main</span>() = <span class="fn">runBlocking</span> {
+    <span class="kw">val</span> sdk = <span class="type">NoaaWeatherSdk</span>.<span class="fn">builder</span>()
+        .<span class="fn">userAgent</span>(<span class="str">"my-weather-app, contact@example.com"</span>)
+        .<span class="fn">build</span>()
+
+    <span class="kw">val</span> forecast = sdk.forecasts.<span class="fn">getDailyForecast</span>(<span class="num">39.7456</span>, <span class="num">-104.9984</span>)
+    forecast.periods.<span class="fn">forEach</span> { period <span class="kw">-></span>
+        <span class="fn">println</span>(<span class="str">"${period.name}: ${period.temperature}${period.temperatureUnit}"</span>)
+    }
+}</pre></div>
+    </div>
+  </div>
+</section>
+
+<!-- Developer Guide -->
+<section id="guide">
+  <div class="container">
+    <span class="section-label">Developer Guide</span>
+    <h2 class="section-title">Complete API Reference</h2>
+    <p class="section-desc">Everything you need to integrate weather data into your Kotlin application.</p>
+
+    <!-- Configuration -->
+    <div class="guide-section">
+      <h3>Configuration <span class="badge">NoaaWeatherConfig</span></h3>
+      <p>The SDK is configured via the builder pattern. The <code>userAgent</code> field is required by the NWS API &mdash; use the format <code>"app-name, contact-info"</code>.</p>
+      <dl class="config-grid">
+        <dt><code>userAgent</code></dt><dd class="type">String (required)</dd><dd class="desc">App identifier sent in the User-Agent header. Required by NWS.</dd>
+        <dt><code>baseUrl</code></dt><dd class="type">String</dd><dd class="desc">API base URL. Default: <code>https://api.weather.gov</code>. Override for testing.</dd>
+        <dt><code>connectTimeout</code></dt><dd class="type">Duration</dd><dd class="desc">HTTP connection timeout. Default: 10 seconds.</dd>
+        <dt><code>readTimeout</code></dt><dd class="type">Duration</dd><dd class="desc">HTTP read timeout. Default: 30 seconds.</dd>
+        <dt><code>enableLogging</code></dt><dd class="type">Boolean</dd><dd class="desc">Enable OkHttp HTTP request/response logging. Default: false.</dd>
+      </dl>
+    </div>
+
+    <!-- ForecastService -->
+    <div class="guide-section">
+      <h3>ForecastService <span class="badge">sdk.forecasts</span></h3>
+      <p>Fetch daily and hourly forecasts. Methods that take coordinates automatically resolve to the nearest gridpoint via the NWS <code>/points</code> endpoint.</p>
+      <table class="api-table">
+        <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>getDailyForecast(lat, lon)</code></td><td><code>DailyForecast</code></td><td>Daily forecast for coordinates. Auto-resolves gridpoint.</td></tr>
+          <tr><td><code>getHourlyForecast(lat, lon)</code></td><td><code>List&lt;HourlyForecast&gt;</code></td><td>Hourly forecast for coordinates.</td></tr>
+          <tr><td><code>getGridpointForecast(wfo, x, y)</code></td><td><code>GridpointForecast</code></td><td>Daily forecast by gridpoint (skip location lookup).</td></tr>
+          <tr><td><code>getGridpointHourly(wfo, x, y)</code></td><td><code>List&lt;HourlyForecast&gt;</code></td><td>Hourly forecast by gridpoint.</td></tr>
+          <tr><td><code>getZoneForecast(zoneId)</code></td><td><code>ZoneForecast</code></td><td>Forecast by NWS zone ID (e.g., <code>"COZ001"</code>).</td></tr>
+        </tbody>
+      </table>
+      <div class="model-list">
+        <div class="model-item"><code>ForecastPeriod</code><p>name, startTime, endTime, temperature, temperatureUnit, windSpeed, windDirection, shortForecast, detailedForecast, icon</p></div>
+        <div class="model-item"><code>HourlyForecast</code><p>time, temperature, dewpoint, relativeHumidity, probabilityOfPrecipitation, windChill, heatIndex</p></div>
+        <div class="model-item"><code>DailyForecast</code><p>periods: List&lt;ForecastPeriod&gt;, generatedAt: Instant</p></div>
+        <div class="model-item"><code>GridPoint</code><p>wfo: String (e.g., "BOU"), gridX: Int, gridY: Int</p></div>
+      </div>
+    </div>
+
+    <!-- AlertService -->
+    <div class="guide-section">
+      <h3>AlertService <span class="badge">sdk.alerts</span></h3>
+      <p>Query active weather alerts. Alerts include typed enums for severity, urgency, and certainty &mdash; no string parsing needed.</p>
+      <table class="api-table">
+        <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>getActiveAlerts()</code></td><td><code>List&lt;Alert&gt;</code></td><td>All currently active alerts.</td></tr>
+          <tr><td><code>getAlertsByArea(stateCode)</code></td><td><code>List&lt;Alert&gt;</code></td><td>Alerts for a 2-letter US state code (e.g., <code>"CO"</code>).</td></tr>
+          <tr><td><code>getAlertsByZone(zoneId)</code></td><td><code>List&lt;Alert&gt;</code></td><td>Alerts for an NWS zone (e.g., <code>"COZ001"</code>).</td></tr>
+          <tr><td><code>getAlert(id)</code></td><td><code>Alert</code></td><td>Single alert by its NWS identifier.</td></tr>
+        </tbody>
+      </table>
+      <div class="model-list">
+        <div class="model-item"><code>Alert</code><p>id, event, headline, description, instruction, area, affectedZones, effective, expires, sender</p></div>
+        <div class="model-item"><code>AlertSeverity</code><p>EXTREME, SEVERE, MODERATE, MINOR, UNKNOWN</p></div>
+        <div class="model-item"><code>AlertUrgency</code><p>IMMEDIATE, EXPECTED, FUTURE, PAST, UNKNOWN</p></div>
+        <div class="model-item"><code>AlertCertainty</code><p>OBSERVED, LIKELY, POSSIBLE, UNLIKELY, UNKNOWN</p></div>
+      </div>
+    </div>
+
+    <!-- ObservationService -->
+    <div class="guide-section">
+      <h3>ObservationService <span class="badge">sdk.observations</span></h3>
+      <p>Access current conditions from NWS observation stations. Find stations by location, then retrieve the latest readings.</p>
+      <table class="api-table">
+        <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>getNearbyStations(lat, lon)</code></td><td><code>List&lt;Station&gt;</code></td><td>Observation stations near the given coordinates.</td></tr>
+          <tr><td><code>getLatestObservation(stationId)</code></td><td><code>Observation</code></td><td>Most recent reading from a station (e.g., <code>"KDEN"</code>).</td></tr>
+          <tr><td><code>getObservations(stationId)</code></td><td><code>List&lt;Observation&gt;</code></td><td>Historical observations from a station.</td></tr>
+        </tbody>
+      </table>
+      <div class="model-list">
+        <div class="model-item"><code>Station</code><p>id, name, coordinates: GeoPoint, elevation</p></div>
+        <div class="model-item"><code>Observation</code><p>temperature, dewpoint, windSpeed, windDirection, windGust, barometricPressure, visibility, relativeHumidity, precipitationLastHour, weatherDescription</p></div>
+      </div>
+    </div>
+
+    <!-- GlossaryService -->
+    <div class="guide-section">
+      <h3>GlossaryService <span class="badge">sdk.glossary</span></h3>
+      <p>NWS term definitions and weather icon metadata. Useful for building educational or reference interfaces.</p>
+      <table class="api-table">
+        <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>getGlossaryTerms()</code></td><td><code>List&lt;GlossaryTerm&gt;</code></td><p>All NWS glossary terms and definitions.</p></td></tr>
+          <tr><td><code>getIcons()</code></td><td><code>List&lt;IconInfo&gt;</code></td><td>Weather icon metadata from the NWS icon library.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Logging -->
+    <div class="guide-section">
+      <h3>Logging <span class="badge">SLF4J</span></h3>
+      <p>The SDK uses <strong>SLF4J</strong> for structured logging. Add your preferred backend (Logback, Log4j2, SLF4J-Simple) and everything lights up automatically. No implementation binding is included &mdash; that's the consumer's choice.</p>
+      <table class="api-table">
+        <thead><tr><th>Component</th><th>DEBUG</th><th>INFO</th><th>ERROR</th></tr></thead>
+        <tbody>
+          <tr><td>Interceptor</td><td>Every request URL + response code</td><td>&mdash;</td><td>Rate limits (429), API errors</td></tr>
+          <tr><td>ForecastService</td><td>Lat/lon params, gridpoint params</td><td>Resolved gridpoint, period count</td><td>&mdash;</td></tr>
+          <tr><td>AlertService</td><td>State/zone/id params</td><td>Alert count, event details</td><td>&mdash;</td></tr>
+          <tr><td>ObservationService</td><td>Station ID, coordinates</td><td>Station count, temp summary</td><td>&mdash;</td></tr>
+          <tr><td>GlossaryService</td><td>Endpoint being called</td><td>Term/icon count</td><td>Parse failures (with stack trace)</td></tr>
+        </tbody>
+      </table>
+      <div class="code-block" style="margin-top: 16px;">
+        <div class="code-header"><span>logback.xml</span><button onclick="copyCode(this)">Copy</button></div>
+        <div class="code-body"><pre><span class="cmt">&lt;!-- Enable SDK debug logs --&gt;</span>
+<span class="kw">&lt;logger</span> name=<span class="str">"dev.abid.noaa.weather.sdk"</span> level=<span class="str">"DEBUG"</span><span class="kw">/&gt;</span></pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Usage Examples -->
+<section class="section-alt" id="usage">
+  <div class="container">
+    <span class="section-label">Examples</span>
+    <h2 class="section-title">Service Usage</h2>
+    <p class="section-desc">Each service is a property on the SDK instance. All methods are coroutine suspend functions.</p>
+    <div class="usage-grid">
+      <div class="usage-card">
+        <div class="usage-card-header"><span class="dot dot-blue"></span><span>Forecasts</span></div>
+        <pre><span class="cmt">// Hourly forecast by coordinates</span>
+<span class="kw">val</span> hourly = sdk.forecasts
+    .<span class="fn">getHourlyForecast</span>(39.7456, -104.9984)
+
+<span class="cmt">// Direct gridpoint (skip lookup)</span>
+<span class="kw">val</span> grid = sdk.forecasts
+    .<span class="fn">getGridpointForecast</span>(<span class="str">"BOU"</span>, 65, 61)
+
+<span class="cmt">// Zone-based forecast</span>
+<span class="kw">val</span> zone = sdk.forecasts
+    .<span class="fn">getZoneForecast</span>(<span class="str">"COZ001"</span>)</pre>
+      </div>
+      <div class="usage-card">
+        <div class="usage-card-header"><span class="dot dot-orange"></span><span>Alerts</span></div>
+        <pre><span class="cmt">// All active alerts</span>
+<span class="kw">val</span> all = sdk.alerts.<span class="fn">getActiveAlerts</span>()
+
+<span class="cmt">// By state (2-letter code)</span>
+<span class="kw">val</span> co = sdk.alerts
+    .<span class="fn">getAlertsByArea</span>(<span class="str">"CO"</span>)
+
+<span class="cmt">// Single alert</span>
+<span class="kw">val</span> alert = sdk.alerts
+    .<span class="fn">getAlert</span>(<span class="str">"urn:oid:2.49.0..."</span>)
+<span class="fn">println</span>(alert.severity) <span class="cmt">// EXTREME</span></pre>
+      </div>
+      <div class="usage-card">
+        <div class="usage-card-header"><span class="dot dot-green"></span><span>Observations</span></div>
+        <pre><span class="cmt">// Find nearby stations</span>
+<span class="kw">val</span> stations = sdk.observations
+    .<span class="fn">getNearbyStations</span>(39.86, -104.67)
+
+<span class="cmt">// Latest reading</span>
+<span class="kw">val</span> obs = sdk.observations
+    .<span class="fn">getLatestObservation</span>(<span class="str">"KDEN"</span>)
+<span class="fn">println</span>(<span class="str">"Temp: ${obs.temperature}"</span>)
+<span class="fn">println</span>(<span class="str">"Wind: ${obs.windSpeed}"</span>)</pre>
+      </div>
+      <div class="usage-card">
+        <div class="usage-card-header"><span class="dot dot-purple"></span><span>Configuration</span></div>
+        <pre><span class="kw">val</span> sdk = <span class="type">NoaaWeatherSdk</span>.<span class="fn">builder</span>()
+    .<span class="fn">userAgent</span>(<span class="str">"my-app, me@example.com"</span>)
+    .<span class="fn">baseUrl</span>(<span class="str">"http://localhost:8080"</span>)
+    .<span class="fn">connectTimeout</span>(5.<span class="fn">seconds</span>)
+    .<span class="fn">readTimeout</span>(15.<span class="fn">seconds</span>)
+    .<span class="fn">enableLogging</span>(<span class="kw">true</span>)
+    .<span class="fn">build</span>()</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Error Handling -->
+<section id="errors">
+  <div class="container">
+    <span class="section-label">Error Handling</span>
+    <h2 class="section-title">Typed Exceptions for Every Scenario</h2>
+    <p class="section-desc">All errors are subclasses of <code>NoaaWeatherException</code>, making catch blocks clean and specific.</p>
+    <table class="api-table">
+      <thead><tr><th>Exception</th><th>When</th><th>Key Properties</th></tr></thead>
+      <tbody>
+        <tr><td><code>NoaaApiException</code></td><td>NWS API returned a non-2xx response</td><td><code>statusCode</code>, <code>errorBody</code></td></tr>
+        <tr><td><code>NoaaRateLimitException</code></td><td>HTTP 429 &mdash; too many requests</td><td><code>retryAfter</code></td></tr>
+        <tr><td><code>NoaaNetworkException</code></td><td>Network failure (timeout, DNS, etc.)</td><td><code>cause</code> (IOException)</td></tr>
+        <tr><td><code>NoaaParseException</code></td><td>Response body could not be parsed</td><td><code>rawBody</code></td></tr>
+      </tbody>
+    </table>
+    <div class="code-block" style="margin-top: 24px;">
+      <div class="code-header"><span>Error Handling</span><button onclick="copyCode(this)">Copy</button></div>
+      <div class="code-body"><pre><span class="kw">try</span> {
+    <span class="kw">val</span> forecast = sdk.forecasts.<span class="fn">getDailyForecast</span>(39.7456, -104.9984)
+} <span class="kw">catch</span> (e: <span class="type">NoaaRateLimitException</span>) {
+    <span class="fn">println</span>(<span class="str">"Rate limited. Retry after: ${e.retryAfter}"</span>)
+} <span class="kw">catch</span> (e: <span class="type">NoaaApiException</span>) {
+    <span class="fn">println</span>(<span class="str">"API error ${e.statusCode}: ${e.message}"</span>)
+} <span class="kw">catch</span> (e: <span class="type">NoaaNetworkException</span>) {
+    <span class="fn">println</span>(<span class="str">"Network error: ${e.message}"</span>)
+} <span class="kw">catch</span> (e: <span class="type">NoaaWeatherException</span>) {
+    <span class="fn">println</span>(<span class="str">"SDK error: ${e.message}"</span>)
+}</pre></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section section-alt">
+  <div class="container">
+    <div class="cta-card">
+      <h2>Ready to Build with Weather Data?</h2>
+      <p>Start fetching forecasts, alerts, and observations in your Kotlin app today. Free, open-source, no API key needed.</p>
+      <a href="#quickstart" class="btn btn-cta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        Get Started Now
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <p>NOAA Weather SDK for Kotlin &mdash; Not affiliated with or endorsed by NOAA.</p>
+    <div class="footer-links">
+      <a href="https://api.weather.gov/" target="_blank" rel="noopener">Source API</a>
+      <a href="https://github.com/gitAbid/noaa-weather-sdk-kotlin" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://abidhasan.tech/" target="_blank" rel="noopener">Author</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+}
+(function() {
+  const saved = localStorage.getItem('theme');
+  if (saved) { document.documentElement.setAttribute('data-theme', saved); }
+  else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+})();
+function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('pre').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    btn.style.borderColor = '#4ADE80';
+    btn.style.color = '#4ADE80';
+    setTimeout(() => { btn.textContent = orig; btn.style.borderColor = ''; btn.style.color = ''; }, 2000);
+  });
+}
+</script>
+</body>
+</html>
