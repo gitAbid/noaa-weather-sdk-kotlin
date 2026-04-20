@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "1.9.23"
+    application
 }
 
 group = "dev.abid.noaa.weather"
@@ -7,6 +8,10 @@ version = "1.0.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+}
+
+application {
+    mainClass.set("dev.abid.noaa.weather.sdk.IntegrationReportKt")
 }
 
 dependencies {
