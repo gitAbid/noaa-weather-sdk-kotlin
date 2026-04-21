@@ -1,6 +1,15 @@
 # NOAA Weather SDK for Kotlin
 
+[![CI](https://img.shields.io/github/actions/workflow/status/gitAbid/noaa-weather-sdk-kotlin/ci.yml?branch=master&label=tests&style=flat-square)](https://github.com/gitAbid/noaa-weather-sdk-kotlin/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/gitAbid/noaa-weather-sdk-kotlin?style=flat-square&label=latest)](https://github.com/gitAbid/noaa-weather-sdk-kotlin/releases)
+[![Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FgitAbid%2Fnoaa-weather-sdk-kotlin%2Fmaster%2Fbuild.gradle.kts&query=%24.version&search=%22version%22&style=flat-square&label=version&prefix=v)](https://github.com/gitAbid/noaa-weather-sdk-kotlin)
+[![License](https://img.shields.io/github/license/gitAbid/noaa-weather-sdk-kotlin?style=flat-square)](https://github.com/gitAbid/noaa-weather-sdk-kotlin/blob/master/LICENSE)
+[![Kotlin](https://img.shields.io/badge/Kotlin-1.9.23-7F52FF?style=flat-square&logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![GitHub Packages](https://img.shields.io/badge/GitHub-Packages-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/gitAbid/noaa-weather-sdk-kotlin/packages)
+
 A Kotlin/JVM SDK for the [National Weather Service (NWS) API](https://api.weather.gov/). Provides a developer-friendly, coroutine-based interface for fetching weather forecasts, alerts, observations, and glossary data.
+
+**Data Source:** [National Oceanic and Atmospheric Administration (NOAA)](https://www.noaa.gov/)
 
 ## Features
 
@@ -13,9 +22,29 @@ A Kotlin/JVM SDK for the [National Weather Service (NWS) API](https://api.weathe
 - **Builder pattern** — Simple configuration with sensible defaults
 - **Structured errors** — Typed exception hierarchy for API, rate limit, network, and parse errors
 
+## Documentation
+
+- **Developer Guide & API Reference:** [https://gitabid.github.io/noaa-weather-sdk-kotlin/](https://gitabid.github.io/noaa-weather-sdk-kotlin/)
+
 ## Quick Start
 
 ### Setup
+
+Add the dependency (published to GitHub Packages):
+
+```kotlin
+repositories {
+    maven {
+        url = uri("https://maven.pkg.github.com/gitAbid/noaa-weather-sdk-kotlin")
+    }
+}
+
+dependencies {
+    implementation("dev.abid.noaa.weather:sdk:1.0.0")
+}
+```
+
+Build the SDK:
 
 ```kotlin
 val sdk = NoaaWeatherSdk.builder()
@@ -176,4 +205,4 @@ src/main/kotlin/dev/abid/noaa/weather/sdk/
 
 ## License
 
-This project is provided as-is. The NWS API is a public service operated by the National Oceanic and Atmospheric Administration. This SDK is not affiliated with or endorsed by NOAA.
+MIT. This SDK is not affiliated with or endorsed by [NOAA](https://www.noaa.gov/). Weather data is provided by the [National Weather Service API](https://api.weather.gov/).
