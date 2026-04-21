@@ -1,8 +1,8 @@
 # NOAA Weather SDK for Kotlin
 
-[![CI](https://img.shields.io/github/actions/workflow/status/gitAbid/noaa-weather-sdk-kotlin/ci.yml?branch=master&label=tests&style=flat-square)](https://github.com/gitAbid/noaa-weather-sdk-kotlin/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/gitAbid/noaa-weather-sdk-kotlin/ci.yml?branch=master&style=flat-square&label=tests)](https://github.com/gitAbid/noaa-weather-sdk-kotlin/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/gitAbid/noaa-weather-sdk-kotlin?style=flat-square&label=latest)](https://github.com/gitAbid/noaa-weather-sdk-kotlin/releases)
-[![Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FgitAbid%2Fnoaa-weather-sdk-kotlin%2Fmaster%2Fbuild.gradle.kts&query=%24.version&search=%22version%22&style=flat-square&label=version&prefix=v)](https://github.com/gitAbid/noaa-weather-sdk-kotlin)
+[![Maven](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fmaven.pkg.github.com%2FgitAbid%2Fnoaa-weather-sdk-kotlin%2Fdev%2Fabid%2Fnoaa%2Fweather%2Fsdk%2Fmaven-metadata.xml&style=flat-square&label=version)](https://github.com/gitAbid/noaa-weather-sdk-kotlin/packages)
 [![License](https://img.shields.io/github/license/gitAbid/noaa-weather-sdk-kotlin?style=flat-square)](https://github.com/gitAbid/noaa-weather-sdk-kotlin/blob/master/LICENSE)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.23-7F52FF?style=flat-square&logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![GitHub Packages](https://img.shields.io/badge/GitHub-Packages-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/gitAbid/noaa-weather-sdk-kotlin/packages)
